@@ -1,0 +1,78 @@
+{
+  "name": "veredicto-vscode",
+  "displayName": "Veredicto",
+  "description": "Ejecuta el CLI `veredicto check` sobre el repo abierto y muestra el veredicto VERIFIED / NOT_VERIFIED sin salir de VS Code. Fail-closed: nunca muestra VERIFIED sin salida real del CLI.",
+  "version": "0.1.0",
+  "publisher": "celdilla",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/celdilla/veredicto-cli"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Testing",
+    "Other"
+  ],
+  "keywords": [
+    "verification",
+    "ci",
+    "testing",
+    "audit",
+    "fail-closed"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:veredicto.check"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "category": "Veredicto",
+        "command": "veredicto.check",
+        "icon": "$(shield)",
+        "title": "Veredicto: Check this repo"
+      }
+    ],
+    "configuration": {
+      "properties": {
+        "veredicto.cliPath": {
+          "default": "veredicto",
+          "description": "Ruta o nombre del ejecutable del CLI de Veredicto (por defecto se busca `veredicto` en el PATH).",
+          "type": "string"
+        },
+        "veredicto.timeout": {
+          "default": 300,
+          "description": "Timeout por suite de tests que se pasa al CLI (`--timeout`), en segundos.",
+          "minimum": 10,
+          "type": "number"
+        }
+      },
+      "title": "Veredicto"
+    },
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "veredicto.check",
+          "when": "workspaceFolderCount > 0"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "veredicto.check",
+          "group": "veredicto@1",
+          "when": "workspaceFolderCount > 0"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@vscode/vsce": "^3.0.0"
+  }
+}

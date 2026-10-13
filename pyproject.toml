@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "veredicto-cli"
+version = "0.2.0"
+description = "Verificación determinista y fail-closed de repos: ejecuta la suite de tests de verdad y emite un certificado JSON. Si no puede verificar, dice NOT_VERIFIED."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+    { name = "Celdilla LLC" },
+]
+keywords = ["verification", "ci", "testing", "audit", "fail-closed"]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Testing",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+sign = ["cryptography>=41"]
+
+[project.scripts]
+veredicto = "veredicto_cli.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/celdilla/veredicto-cli"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
