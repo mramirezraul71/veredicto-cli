@@ -77,7 +77,10 @@ def test_keygen_escribe_par_con_permisos(tmp_path, capsys):
     priv = keys_dir / "veredicto-private.pem"
     pub = keys_dir / "veredicto-public.pem"
     assert priv.is_file() and pub.is_file()
-    assert stat.S_IMODE(priv.stat().st_mode) == 0o600
+    # 0o600 es una regla POSIX: en Windows st_mode no refleja esos bits
+    # (visita 005, A-11); el resto del test vale en ambas plataformas.
+    if os.name == "posix":
+        assert stat.S_IMODE(priv.stat().st_mode) == 0o600
     assert b"PRIVATE KEY" in priv.read_bytes()
     assert b"PRIVATE KEY" not in pub.read_bytes()
     out = capsys.readouterr().out

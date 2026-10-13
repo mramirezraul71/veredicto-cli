@@ -35,6 +35,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import shutil
 import subprocess as _sp
 import sys
 from datetime import datetime, timezone
@@ -240,7 +241,14 @@ def _npm_test_script(repo: Path) -> Optional[str]:
 
 
 def _check_npm(repo: Path, timeout: int, script: str) -> dict:
-    command = ["npm", "test"]
+    # En Windows npm es un .cmd: CreateProcess no lo ejecuta directamente y
+    # hay que lanzarlo vía cmd /c con la ruta resuelta (si no, un Windows con
+    # npm instalado parecía "sin npm" y el check fallaba fail-closed).
+    _npm = shutil.which("npm")
+    if _npm and os.name == "nt" and _npm.lower().endswith((".cmd", ".bat")):
+        command = ["cmd", "/c", _npm, "test"]
+    else:
+        command = ["npm", "test"]
     base = {"name": "tests-npm", "runner": "npm",
             "command": f"npm test  # {script}"}
     try:

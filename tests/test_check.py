@@ -15,6 +15,17 @@ import pytest
 from veredicto_cli.check import NOT_VERIFIED, VERIFIED, run_check, verify_chain
 from veredicto_cli.cli import main
 
+def _sin_red_npm() -> bool:
+    """True si no se puede abrir un socket al registro de npm (A-11: sin red,
+    los tests de npm se saltan en vez de fallar — p. ej. Windows sin salida)."""
+    import socket
+    try:
+        with socket.create_connection(("registry.npmjs.org", 443), timeout=3):
+            return False
+    except OSError:
+        return True
+
+
 _GIT_ENV = {
     "GIT_AUTHOR_NAME": "Test", "GIT_AUTHOR_EMAIL": "test@example.com",
     "GIT_COMMITTER_NAME": "Test", "GIT_COMMITTER_EMAIL": "test@example.com",
@@ -116,7 +127,7 @@ def test_cadena_de_hash_detecta_manipulacion(tmp_path):
     assert verify_chain(cert) is False
 
 
-@pytest.mark.skipif(shutil.which("npm") is None, reason="npm no disponible")
+@pytest.mark.skipif(shutil.which("npm") is None or _sin_red_npm(), reason="npm no disponible o sin red al registro")
 def test_verified_suite_npm(tmp_path):
     pkg = {"package.json": json.dumps(
         {"name": "toy", "scripts": {"test": 'node -e "process.exit(0)"'}})}
@@ -126,7 +137,7 @@ def test_verified_suite_npm(tmp_path):
     assert _check_by_name(cert, "tests-npm")["passed"] is True
 
 
-@pytest.mark.skipif(shutil.which("npm") is None, reason="npm no disponible")
+@pytest.mark.skipif(shutil.which("npm") is None or _sin_red_npm(), reason="npm no disponible o sin red al registro")
 def test_not_verified_suite_npm_que_falla(tmp_path):
     pkg = {"package.json": json.dumps(
         {"name": "toy", "scripts": {"test": 'node -e "process.exit(1)"'}})}
